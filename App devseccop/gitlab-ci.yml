@@ -1,0 +1,24 @@
+stages:
+  - test
+  - build
+  - security
+
+test_app:
+  stage: test
+  script:
+    - python app.py & sleep 5
+    - curl http://localhost:5000/login
+
+build_docker:
+  stage: build
+  script:
+    - docker build -t monapp:latest .
+
+scan_docker:
+  stage: security
+  image: aquasec/trivy:latest
+  script:
+    - trivy image monapp:latest > trivy-report.txt
+  artifacts:
+    paths:
+      - trivy-report.txt
